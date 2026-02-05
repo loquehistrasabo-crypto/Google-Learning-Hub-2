@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Allow indexing of main pages
+Allow: /index.html
+Allow: /style.css
+Allow: /script.js
+
+# Disallow admin-like paths
+Disallow: /admin/
+Disallow: /wp-admin/
+Disallow: /.env
+Disallow: /config/
+
+# Allow games directory
+Allow: /games/
+
+Sitemap: https://your-domain.netlify.app/sitemap.xml

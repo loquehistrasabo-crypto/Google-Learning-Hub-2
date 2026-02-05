@@ -1,0 +1,27 @@
+{
+  "name": "unblocked-games-crack-hub",
+  "version": "1.0.0",
+  "description": "Professional unblocked games platform with Google Docs disguise",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "build": "echo 'Static site - no build required'",
+    "deploy": "netlify deploy --prod",
+    "preview": "netlify deploy"
+  },
+  "keywords": [
+    "games",
+    "unblocked",
+    "html5",
+    "javascript",
+    "netlify"
+  ],
+  "author": "AnonyRyan",
+  "license": "MIT",
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
