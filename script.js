@@ -120,8 +120,22 @@ let isGamePlayerOpen = false;
 
 // Initialize Application
 function init() {
+    renderFeaturedGamesGrid();
     renderGamesList();
     updateGameCount();
+}
+
+// Render Featured Games in Sidebar
+function renderFeaturedGamesGrid() {
+    const featuredGames = games.filter(game => game.featured).slice(0, 6);
+    const featuredGrid = document.getElementById('featuredGamesGrid');
+    
+    featuredGrid.innerHTML = featuredGames.map(game => `
+        <div class="featured-game-card" onclick="loadGame('${game.path}', '${game.name}')">
+            <div class="featured-game-name">${game.name}</div>
+            <div class="featured-game-category">${game.category}</div>
+        </div>
+    `).join('');
 }
 
 // Render Games List in Sidebar
