@@ -152,8 +152,53 @@
 
     <!-- WORLD-CLASS GAME INTERFACE -->
     <div class="game-overlay" id="gameOverlay">
-        <!-- Navigation Bar -->
-        <nav class="nav-bar">
+        <div class="game-layout">
+            <!-- Left Sidebar - Games List -->
+            <div class="games-sidebar">
+                <div class="sidebar-header">
+                    <h2 class="sidebar-title">Games Library</h2>
+                    <input type="text" id="sidebarSearch" placeholder="Search games..." class="sidebar-search" oninput="searchGames()">
+                    <div style="margin-top: 12px; font-size: 14px; color: var(--color-text-secondary);">
+                        <span id="gameCount"></span>
+                    </div>
+                </div>
+                <div class="games-list" id="gamesList"></div>
+            </div>
+
+            <!-- Right Side - Game Display -->
+            <div class="game-display">
+                <div class="game-display-header">
+                    <h1 class="game-display-title" id="currentGameTitle">Select a game to play</h1>
+                    <div class="game-display-controls">
+                        <button class="control-btn" onclick="toggleFullscreen()" id="fullscreenBtn">
+                            <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                            </svg>
+                            Fullscreen
+                        </button>
+                        <button class="control-btn" onclick="closeGames()">
+                            <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            Close
+                        </button>
+                    </div>
+                </div>
+                <div class="game-display-content">
+                    <div class="game-placeholder" id="gamePlaceholder">
+                        <div class="game-placeholder-icon">🎮</div>
+                        <div class="game-placeholder-text">Select a game from the sidebar to start playing</div>
+                    </div>
+                    <iframe id="gameIframe" class="game-iframe" style="display: none;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
             <div class="nav-content">
                 <div class="nav-left">
                     <div class="logo">

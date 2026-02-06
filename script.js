@@ -120,168 +120,18 @@ let isGamePlayerOpen = false;
 
 // Initialize Application
 function init() {
-    renderFeaturedGames();
-    renderGames();
-    setupEventListeners();
+    renderGamesList();
     updateGameCount();
 }
 
-// Event Listeners
-function setupEventListeners() {
-    // Search functionality
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', debounce(handleSearch, 300));
+// Render Games List in Sidebar
+function renderGamesList() {
+    const gamesList = document.getElementById('gamesList');
     
-    // View controls
-    document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', handleViewChange);
-    });
-    
-    // Keyboard shortcuts
-    document.addEventListener('keydown', handleKeyboardShortcuts);
-    
-    // Loading state management
-    const gameIframe = document.getElementById('gameIframe');
-    gameIframe.addEventListener('load', hideLoadingState);
-}
-
-// Debounce utility
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Search Handler
-function handleSearch(event) {
-    const query = event.target.value.toLowerCase().trim();
-    
-    if (query === '') {
-        filteredGames = [...games];
-    } else {
-        filteredGames = games.filter(game => 
-            game.name.toLowerCase().includes(query) ||
-            game.category.toLowerCase().includes(query) ||
-            game.description.toLowerCase().includes(query)
-        );
-    }
-    
-    renderGames();
-    updateGameCount();
-}
-
-// View Change Handler
-function handleViewChange(event) {
-    const newView = event.currentTarget.dataset.view;
-    if (newView === currentView) return;
-    
-    currentView = newView;
-    
-    // Update active state
-    document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.currentTarget.classList.add('active');
-    
-    // Update grid layout
-    const gamesGrid = document.getElementById('gamesGrid');
-    gamesGrid.className = 'games-grid';
-    
-    if (currentView === 'bento') {
-        gamesGrid.classList.add('bento-layout');
-    } else if (currentView === 'list') {
-        gamesGrid.style.gridTemplateColumns = '1fr';
-        gamesGrid.querySelectorAll('.game-card').forEach(card => {
-            card.style.minHeight = '80px';
-            card.style.flexDirection = 'row';
-            card.style.justifyContent = 'flex-start';
-            card.style.textAlign = 'left';
-        });
-    } else {
-        gamesGrid.style.gridTemplateColumns = '';
-        gamesGrid.querySelectorAll('.game-card').forEach(card => {
-            card.style.minHeight = '';
-            card.style.flexDirection = '';
-            card.style.justifyContent = '';
-            card.style.textAlign = '';
-        });
-    }
-}
-
-// Keyboard Shortcuts
-function handleKeyboardShortcuts(event) {
-    // Cmd/Ctrl + K for search focus
-    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-        event.preventDefault();
-        document.getElementById('searchInput').focus();
-    }
-    
-    // Escape key handling
-    if (event.key === 'Escape') {
-        if (isGamePlayerOpen) {
-            closeGameFrame();
-        } else {
-            closeGames();
-        }
-    }
-    
-    // Ctrl/Cmd + G to open games
-    if ((event.metaKey || event.ctrlKey) && event.key === 'g') {
-        event.preventDefault();
-        openGames();
-    }
-}
-
-// Render Functions
-function renderFeaturedGames() {
-    const featuredGames = games.filter(game => game.featured).slice(0, 8);
-    const featuredGrid = document.getElementById('featuredGrid');
-    
-    featuredGrid.innerHTML = featuredGames.map((game) => `
-        <div class="featured-card bento-item" onclick="loadGame('${game.path}', '${game.name}')">
-            <div class="featured-card-badge">Featured</div>
-            <div class="featured-card-content">
-                <div>
-                    <div class="featured-card-category">${game.category}</div>
-                    <h3 class="featured-card-title">${game.name}</h3>
-                </div>
-                <div>
-                    <p class="featured-card-description">${game.description}</p>
-                    <div class="featured-card-stats">
-                        <div class="featured-card-stat">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                            </svg>
-                            ${(Math.random() * 2 + 3).toFixed(1)}
-                        </div>
-                        <div class="featured-card-stat">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                            </svg>
-                            ${Math.floor(Math.random() * 50 + 10)}k
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function renderGames() {
-    const gamesGrid = document.getElementById('gamesGrid');
-    
-    gamesGrid.innerHTML = filteredGames.map(game => `
-        <div class="game-card" onclick="loadGame('${game.path}', '${game.name}')" tabindex="0" role="button" aria-label="Play ${game.name}">
-            <div class="game-name">${game.name}</div>
+    gamesList.innerHTML = filteredGames.map(game => `
+        <div class="game-item" onclick="loadGame('${game.path}', '${game.name}')">
+            <div class="game-item-name">${game.name}</div>
+            <div class="game-item-category">${game.category}</div>
         </div>
     `).join('');
 }
@@ -296,67 +146,36 @@ function updateGameCount() {
 function openGames() {
     const overlay = document.getElementById('gameOverlay');
     overlay.classList.add('active');
-    // Don't block body scroll - let the overlay handle it
-    
-    // Focus search input for better UX
-    setTimeout(() => {
-        document.getElementById('searchInput').focus();
-    }, 300);
 }
 
 function closeGames() {
     const overlay = document.getElementById('gameOverlay');
     overlay.classList.remove('active');
-    // Body scroll is already enabled
+    // Reset game display
+    document.getElementById('gameIframe').style.display = 'none';
+    document.getElementById('gamePlaceholder').style.display = 'flex';
+    document.getElementById('gameIframe').src = '';
 }
 
 function loadGame(gamePath, gameName) {
-    const gamePlayer = document.getElementById('gamePlayer');
     const gameIframe = document.getElementById('gameIframe');
-    const currentGameName = document.getElementById('currentGameName');
-    const loadingState = document.getElementById('loadingState');
+    const gamePlaceholder = document.getElementById('gamePlaceholder');
+    const currentGameTitle = document.getElementById('currentGameTitle');
     
-    // Show loading state
-    loadingState.style.display = 'flex';
+    // Update title
+    currentGameTitle.textContent = gameName;
     
-    // Set game details
-    currentGameName.textContent = gameName;
+    // Show iframe, hide placeholder
+    gamePlaceholder.style.display = 'none';
+    gameIframe.style.display = 'block';
     gameIframe.src = gamePath;
-    
-    // Show game player
-    gamePlayer.classList.add('active');
-    isGamePlayerOpen = true;
-    
-    // Update page title
-    document.title = `${gameName} - Games`;
-}
-
-function closeGameFrame() {
-    const gamePlayer = document.getElementById('gamePlayer');
-    const gameIframe = document.getElementById('gameIframe');
-    
-    gamePlayer.classList.remove('active');
-    isGamePlayerOpen = false;
-    
-    // Clear iframe source to stop the game
-    setTimeout(() => {
-        gameIframe.src = '';
-    }, 300);
-    
-    // Reset page title
-    document.title = 'My Essay - Google Docs';
-}
-
-function hideLoadingState() {
-    const loadingState = document.getElementById('loadingState');
-    loadingState.style.display = 'none';
 }
 
 function toggleFullscreen() {
-    const gameIframe = document.getElementById('gameIframe');
+    const gameDisplay = document.querySelector('.game-display-content');
     
     if (!document.fullscreenElement) {
-        gameIframe.requestFullscreen().catch(err => {
+        gameDisplay.requestFullscreen().catch(err => {
             console.log(`Error attempting to enable fullscreen: ${err.message}`);
         });
     } else {
@@ -364,10 +183,22 @@ function toggleFullscreen() {
     }
 }
 
-// Legacy function for backward compatibility
+// Search Handler
 function searchGames() {
-    const input = document.getElementById('searchInput');
-    handleSearch({ target: input });
+    const query = document.getElementById('sidebarSearch').value.toLowerCase().trim();
+    
+    if (query === '') {
+        filteredGames = [...games];
+    } else {
+        filteredGames = games.filter(game => 
+            game.name.toLowerCase().includes(query) ||
+            game.category.toLowerCase().includes(query) ||
+            game.description.toLowerCase().includes(query)
+        );
+    }
+    
+    renderGamesList();
+    updateGameCount();
 }
 
 // Initialize when DOM is loaded
