@@ -1,6 +1,8 @@
 {
   "version": 2,
   "name": "google-learning-hub-2",
+  "buildCommand": "echo 'Static site - no build required'",
+  "outputDirectory": ".",
   "headers": [
     {
       "source": "/(.*)",
