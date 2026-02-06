@@ -130,6 +130,8 @@ function renderFeaturedGamesGrid() {
     const featuredGames = games.filter(game => game.featured).slice(0, 6);
     const featuredGrid = document.getElementById('featuredGamesGrid');
     
+    if (!featuredGrid) return;
+    
     featuredGrid.innerHTML = featuredGames.map(game => `
         <div class="featured-game-card" onclick="loadGame('${game.path}', '${game.name}')">
             <div class="featured-game-name">${game.name}</div>
@@ -142,6 +144,8 @@ function renderFeaturedGamesGrid() {
 function renderGamesList() {
     const gamesList = document.getElementById('gamesList');
     
+    if (!gamesList) return;
+    
     gamesList.innerHTML = filteredGames.map(game => `
         <div class="game-item" onclick="loadGame('${game.path}', '${game.name}')">
             <div class="game-item-name">${game.name}</div>
@@ -153,7 +157,9 @@ function renderGamesList() {
 function updateGameCount() {
     const count = filteredGames.length;
     const gameCountElement = document.getElementById('gameCount');
-    gameCountElement.textContent = `${count} game${count !== 1 ? 's' : ''}`;
+    if (gameCountElement) {
+        gameCountElement.textContent = `${count} game${count !== 1 ? 's' : ''}`;
+    }
 }
 
 // Game Management
