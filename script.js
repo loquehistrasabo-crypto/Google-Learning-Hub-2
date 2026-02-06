@@ -172,6 +172,10 @@ function closeGames() {
     document.getElementById('gameIframe').src = '';
 }
 
+function closeGameFrame() {
+    closeGames();
+}
+
 function loadGame(gamePath, gameName) {
     const gameIframe = document.getElementById('gameIframe');
     const gamePlaceholder = document.getElementById('gamePlaceholder');
