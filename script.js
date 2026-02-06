@@ -110,7 +110,6 @@ const games = [
     { name: "We Become What We Behold", path: "games/webecomewhatwebehold/index.html", category: "Story", featured: false, description: "Interactive social commentary" },
     { name: "WHG", path: "games/whg.html", category: "Action", featured: false, description: "Web-based action game" },
     { name: "WorldBox", path: "games/worldbox/index.html", category: "Simulation", featured: false, description: "God simulation sandbox" },
-    { name: "Wrestling Revolution", path: "games/wrestling-revolution.html", category: "Sports", featured: true, description: "Classic wrestling game" },
     { name: "Yohoho", path: "games/yohoho/index.html", category: "Multiplayer", featured: false, description: "Pirate battle royale" }
 ];
 
