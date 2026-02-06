@@ -296,7 +296,7 @@ function updateGameCount() {
 function openGames() {
     const overlay = document.getElementById('gameOverlay');
     overlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    // Don't block body scroll - let the overlay handle it
     
     // Focus search input for better UX
     setTimeout(() => {
@@ -307,7 +307,7 @@ function openGames() {
 function closeGames() {
     const overlay = document.getElementById('gameOverlay');
     overlay.classList.remove('active');
-    document.body.style.overflow = 'auto';
+    // Body scroll is already enabled
 }
 
 function loadGame(gamePath, gameName) {
