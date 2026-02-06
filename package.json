@@ -5,16 +5,14 @@
   "main": "index.html",
   "scripts": {
     "dev": "python -m http.server 8000",
-    "build": "echo 'Static site - no build required'",
-    "deploy": "netlify deploy --prod",
-    "preview": "netlify deploy"
+    "build": "echo 'Static site - no build required'"
   },
   "keywords": [
     "games",
     "unblocked",
     "html5",
     "javascript",
-    "netlify"
+    "cloudflare"
   ],
   "author": "AnonyRyan",
   "license": "MIT",
