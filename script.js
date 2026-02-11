@@ -120,6 +120,9 @@ let isGamePlayerOpen = false;
 let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 let recentlyPlayed = JSON.parse(localStorage.getItem('recentlyPlayed') || '[]');
 let darkMode = JSON.parse(localStorage.getItem('darkMode') || 'false');
+let currentFilter = 'all';
+let currentSort = 'name';
+let playTime = JSON.parse(localStorage.getItem('playTime') || '{}');
 
 // Initialize Application
 function init() {
@@ -128,6 +131,22 @@ function init() {
     updateGameCount();
     applyDarkMode();
     setupKeyboardShortcuts();
+    trackPlayTime();
+}
+
+// Track play time
+function trackPlayTime() {
+    setInterval(() => {
+        const overlay = document.getElementById('gameOverlay');
+        const gameTitle = document.getElementById('currentGameTitle');
+        if (overlay && overlay.classList.contains('active') && gameTitle) {
+            const gameName = gameTitle.textContent;
+            if (gameName !== 'Select a game to play') {
+                playTime[gameName] = (playTime[gameName] || 0) + 1;
+                localStorage.setItem('playTime', JSON.stringify(playTime));
+            }
+        }
+    }, 60000); // Track every minute
 }
 
 // Render Featured Games in Sidebar
@@ -151,21 +170,28 @@ function renderGamesList() {
     
     if (!gamesList) return;
     
-    gamesList.innerHTML = filteredGames.map(game => `
+    gamesList.innerHTML = filteredGames.map(game => {
+        const playTimeStr = getPlayTime(game.name);
+        const hasPlayTime = playTime[game.name] > 0;
+        
+        return `
         <div class="game-item" style="position: relative;">
             <div onclick="loadGame('${game.path}', '${game.name}')" style="flex: 1; cursor: pointer;">
                 <div class="game-item-name">${game.name}</div>
-                <div class="game-item-category">
-                    ${game.category}
-                    ${game.rating ? `<span style="color: #fbbf24; margin-left: 8px;">★ ${game.rating}</span>` : ''}
+                <div class="game-item-category" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span>${game.category}</span>
+                    ${game.rating ? `<span style="color: #fbbf24;">★ ${game.rating}</span>` : ''}
+                    ${hasPlayTime ? `<span style="color: #10b981; font-size: 11px;">⏱ ${playTimeStr}</span>` : ''}
                 </div>
             </div>
             <button onclick="toggleFavorite('${game.name}', '${game.path}')" 
-                    style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 8px;">
+                    style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 8px; transition: transform 0.2s;"
+                    onmouseover="this.style.transform='scale(1.2)'"
+                    onmouseout="this.style.transform='scale(1)'">
                 ${isFavorite(game.name) ? '❤️' : '🤍'}
             </button>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function updateGameCount() {
@@ -314,12 +340,71 @@ function showFavorites() {
     
     const favoriteGames = games.filter(game => isFavorite(game.name));
     filteredGames = favoriteGames;
+    currentFilter = 'favorites';
+    updateFilterButtons();
     renderGamesList();
     updateGameCount();
     
     // Clear search
     const searchInput = document.getElementById('sidebarSearch');
     if (searchInput) searchInput.value = '';
+}
+
+// Filter by category
+function filterByCategory(category) {
+    currentFilter = category;
+    
+    if (category === 'all') {
+        filteredGames = [...games];
+    } else {
+        filteredGames = games.filter(game => game.category === category);
+    }
+    
+    updateFilterButtons();
+    renderGamesList();
+    updateGameCount();
+    
+    // Clear search
+    const searchInput = document.getElementById('sidebarSearch');
+    if (searchInput) searchInput.value = '';
+}
+
+// Update filter button states
+function updateFilterButtons() {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.filter === currentFilter) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// Sort games
+function sortGames(sortBy) {
+    currentSort = sortBy;
+    
+    switch(sortBy) {
+        case 'name':
+            filteredGames.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+        case 'rating':
+            filteredGames.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            break;
+        case 'category':
+            filteredGames.sort((a, b) => a.category.localeCompare(b.category));
+            break;
+    }
+    
+    renderGamesList();
+}
+
+// Get play time for a game
+function getPlayTime(gameName) {
+    const minutes = playTime[gameName] || 0;
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
 }
 
 // Initialize when DOM is loaded
@@ -579,3 +664,5 @@ window.changeUsername = changeUsername;
 window.toggleFavorite = toggleFavorite;
 window.showFavorites = showFavorites;
 window.toggleDarkMode = toggleDarkMode;
+window.filterByCategory = filterByCategory;
+window.sortGames = sortGames;
