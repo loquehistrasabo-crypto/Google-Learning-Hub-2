@@ -1,8 +1,8 @@
 // Game Data with Enhanced Metadata
 const games = [
-    { name: "1v1.LOL", path: "games/1v1lol.html", category: "Action", featured: true, description: "Fast-paced battle royale shooter" },
-    { name: "8 Ball Pool", path: "games/8ball.html", category: "Sports", featured: false, description: "Classic billiards game" },
-    { name: "A Small World Cup", path: "games/asmallworldcup/index.html", category: "Sports", featured: true, description: "Ragdoll physics soccer" },
+    { name: "1v1.LOL", path: "games/1v1lol.html", category: "Action", featured: true, description: "Fast-paced battle royale shooter", rating: 4.8 },
+    { name: "8 Ball Pool", path: "games/8ball.html", category: "Sports", featured: false, description: "Classic billiards game", rating: 4.5 },
+    { name: "A Small World Cup", path: "games/asmallworldcup/index.html", category: "Sports", featured: true, description: "Ragdoll physics soccer", rating: 4.7 },
     { name: "Balatro", path: "games/balatro/index.html", category: "Card", featured: false, description: "Poker-inspired roguelike" },
     { name: "Basket Stars", path: "games/basket-stars/index.html", category: "Sports", featured: false, description: "Basketball shooting game" },
     { name: "Bike Obby", path: "games/bikeobby/index.html", category: "Racing", featured: false, description: "Motorcycle obstacle course" },
@@ -117,12 +117,17 @@ const games = [
 let currentView = 'grid';
 let filteredGames = [...games];
 let isGamePlayerOpen = false;
+let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+let recentlyPlayed = JSON.parse(localStorage.getItem('recentlyPlayed') || '[]');
+let darkMode = JSON.parse(localStorage.getItem('darkMode') || 'false');
 
 // Initialize Application
 function init() {
     renderFeaturedGamesGrid();
     renderGamesList();
     updateGameCount();
+    applyDarkMode();
+    setupKeyboardShortcuts();
 }
 
 // Render Featured Games in Sidebar
@@ -147,9 +152,18 @@ function renderGamesList() {
     if (!gamesList) return;
     
     gamesList.innerHTML = filteredGames.map(game => `
-        <div class="game-item" onclick="loadGame('${game.path}', '${game.name}')">
-            <div class="game-item-name">${game.name}</div>
-            <div class="game-item-category">${game.category}</div>
+        <div class="game-item" style="position: relative;">
+            <div onclick="loadGame('${game.path}', '${game.name}')" style="flex: 1; cursor: pointer;">
+                <div class="game-item-name">${game.name}</div>
+                <div class="game-item-category">
+                    ${game.category}
+                    ${game.rating ? `<span style="color: #fbbf24; margin-left: 8px;">★ ${game.rating}</span>` : ''}
+                </div>
+            </div>
+            <button onclick="toggleFavorite('${game.name}', '${game.path}')" 
+                    style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 8px;">
+                ${isFavorite(game.name) ? '❤️' : '🤍'}
+            </button>
         </div>
     `).join('');
 }
@@ -189,10 +203,76 @@ function loadGame(gamePath, gameName) {
     // Update title
     currentGameTitle.textContent = gameName;
     
-    // Show iframe, hide placeholder
-    gamePlaceholder.style.display = 'none';
-    gameIframe.style.display = 'block';
-    gameIframe.src = gamePath;
+    // Show iframe, hide placeholder with animation
+    gamePlaceholder.style.opacity = '0';
+    setTimeout(() => {
+        gamePlaceholder.style.display = 'none';
+        gameIframe.style.display = 'block';
+        gameIframe.src = gamePath;
+        setTimeout(() => gameIframe.style.opacity = '1', 50);
+    }, 300);
+    
+    // Add to recently played
+    addToRecentlyPlayed(gameName, gamePath);
+}
+
+// Favorites System
+function toggleFavorite(gameName, gamePath) {
+    const index = favorites.findIndex(f => f.name === gameName);
+    if (index > -1) {
+        favorites.splice(index, 1);
+    } else {
+        favorites.push({ name: gameName, path: gamePath });
+    }
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    renderGamesList();
+}
+
+function isFavorite(gameName) {
+    return favorites.some(f => f.name === gameName);
+}
+
+// Recently Played
+function addToRecentlyPlayed(gameName, gamePath) {
+    recentlyPlayed = recentlyPlayed.filter(g => g.name !== gameName);
+    recentlyPlayed.unshift({ name: gameName, path: gamePath, timestamp: Date.now() });
+    recentlyPlayed = recentlyPlayed.slice(0, 10);
+    localStorage.setItem('recentlyPlayed', JSON.stringify(recentlyPlayed));
+}
+
+// Dark Mode
+function toggleDarkMode() {
+    darkMode = !darkMode;
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    applyDarkMode();
+}
+
+function applyDarkMode() {
+    if (darkMode) {
+        document.documentElement.style.setProperty('--color-bg-primary', '#0f0f0f');
+        document.documentElement.style.setProperty('--color-bg-secondary', '#1a1a1a');
+        document.documentElement.style.setProperty('--color-text-primary', '#ffffff');
+    } else {
+        document.documentElement.style.setProperty('--color-bg-primary', '#0f0f0f');
+        document.documentElement.style.setProperty('--color-bg-secondary', '#1a1a1a');
+        document.documentElement.style.setProperty('--color-text-primary', '#ffffff');
+    }
+}
+
+// Keyboard Shortcuts
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // Escape to close games
+        if (e.key === 'Escape' && document.getElementById('gameOverlay').classList.contains('active')) {
+            closeGames();
+        }
+        // Ctrl/Cmd + K to focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            const searchInput = document.getElementById('sidebarSearch');
+            if (searchInput) searchInput.focus();
+        }
+    });
 }
 
 function toggleFullscreen() {
@@ -223,6 +303,23 @@ function searchGames() {
     
     renderGamesList();
     updateGameCount();
+}
+
+// Show Favorites
+function showFavorites() {
+    if (favorites.length === 0) {
+        alert('No favorites yet! Click the heart icon on any game to add it to favorites.');
+        return;
+    }
+    
+    const favoriteGames = games.filter(game => isFavorite(game.name));
+    filteredGames = favoriteGames;
+    renderGamesList();
+    updateGameCount();
+    
+    // Clear search
+    const searchInput = document.getElementById('sidebarSearch');
+    if (searchInput) searchInput.value = '';
 }
 
 // Initialize when DOM is loaded
@@ -479,3 +576,6 @@ window.searchGames = searchGames;
 window.toggleChat = toggleChat;
 window.sendMessage = sendMessage;
 window.changeUsername = changeUsername;
+window.toggleFavorite = toggleFavorite;
+window.showFavorites = showFavorites;
+window.toggleDarkMode = toggleDarkMode;
