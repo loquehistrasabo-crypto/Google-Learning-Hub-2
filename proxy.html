@@ -616,7 +616,10 @@
             homeScreen.style.display = 'none';
             proxyFrame.style.display = 'block';
             
-            proxyFrame.src = 'https://uv.holyubofficial.net/service/' + encodeURIComponent(url);
+            // Use TacoProxy AlloyProxy method with base64 encoding
+            const domain = window.location.hostname;
+            const encodedUrl = btoa(url);
+            proxyFrame.src = "https://" + domain + "/prefix/" + encodedUrl;
             
             setTimeout(() => {
                 loadingBar.classList.remove('active');
