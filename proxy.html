@@ -616,10 +616,16 @@
             homeScreen.style.display = 'none';
             proxyFrame.style.display = 'block';
             
-            // Use TacoProxy AlloyProxy method with base64 encoding
-            const domain = window.location.hostname;
-            const encodedUrl = btoa(url);
-            proxyFrame.src = "https://" + domain + "/prefix/" + encodedUrl;
+            // Use public proxy services (no backend needed)
+            // Try multiple services for better reliability
+            const proxyServices = [
+                'https://www.croxyproxy.com/?url=',
+                'https://www.proxysite.com/process.php?d=',
+                'https://hide.me/en/proxy?u='
+            ];
+            
+            // Use CroxyProxy as primary (most reliable public proxy)
+            proxyFrame.src = proxyServices[0] + encodeURIComponent(url);
             
             setTimeout(() => {
                 loadingBar.classList.remove('active');
