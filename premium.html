@@ -266,7 +266,12 @@
                 <h2 class="pricing-title">One-Time Payment</h2>
                 <div class="price">$7.00</div>
                 <p class="price-note">Lifetime access • Pay once, own forever</p>
-                <button class="notify-btn" onclick="notifyMe()">Notify Me When Available</button>
+                <button class="notify-btn" onclick="window.location.href='activate.html'">
+                    Already Have a Key? Activate Now
+                </button>
+                <p style="margin-top: 16px; font-size: 14px; color: #666;">
+                    Contact admin to purchase a premium key
+                </p>
             </div>
 
             <div class="timeline">
@@ -296,14 +301,26 @@
     </div>
 
     <script>
-        function notifyMe() {
-            const email = prompt('Enter your email to get notified when Premium launches:');
-            if (email && email.includes('@')) {
-                alert('Thanks! We\'ll notify you at ' + email + ' when Premium is available.');
-                // In production, this would send to a backend
-            } else if (email) {
-                alert('Please enter a valid email address.');
-            }
+        // Check if user already has premium
+        if (localStorage.getItem('isPremium') === 'true') {
+            const premiumKey = localStorage.getItem('premiumKey');
+            const activatedDate = new Date(localStorage.getItem('activatedDate')).toLocaleDateString();
+            
+            // Show premium status
+            const pricingSection = document.querySelector('.pricing-section');
+            pricingSection.innerHTML = `
+                <h2 class="pricing-title">✅ Premium Active</h2>
+                <p style="font-size: 18px; color: #10b981; margin: 16px 0;">
+                    You have lifetime premium access!
+                </p>
+                <p style="font-size: 14px; color: #666; margin-bottom: 24px;">
+                    Activated on ${activatedDate}<br>
+                    Key: ${premiumKey}
+                </p>
+                <button class="notify-btn" onclick="window.location.href='proxy.html'" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    Access Web Proxy
+                </button>
+            `;
         }
     </script>
 </body>

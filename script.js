@@ -1,5 +1,6 @@
 // Game Data with Enhanced Metadata
 const games = [
+    { name: "Web Proxy", path: "proxy.html", category: "Tools", featured: true, description: "Browse any website securely", rating: 5.0 },
     { name: "1v1.LOL", path: "games/1v1lol.html", category: "Action", featured: true, description: "Fast-paced battle royale shooter", rating: 4.8 },
     { name: "8 Ball Pool", path: "games/8ball.html", category: "Sports", featured: false, description: "Classic billiards game", rating: 4.5 },
     { name: "A Small World Cup", path: "games/asmallworldcup/index.html", category: "Sports", featured: true, description: "Ragdoll physics soccer", rating: 4.7 },

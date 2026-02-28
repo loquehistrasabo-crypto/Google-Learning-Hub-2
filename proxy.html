@@ -440,8 +440,12 @@
             <p class="lock-text">
                 Unlock unlimited web browsing with our premium proxy service. Get lifetime access for just $7 and enjoy ad-free, unrestricted internet access.
             </p>
-            <button class="premium-btn" onclick="window.location.href='premium.html'">
-                Upgrade to Premium
+            <button class="premium-btn" onclick="window.location.href='activate.html'">
+                Activate Premium Key
+            </button>
+            <br>
+            <button class="premium-btn" onclick="window.location.href='premium.html'" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin-top: 12px;">
+                Learn More About Premium
             </button>
             <br>
             <a href="index.html" class="back-link">← Back to Classroom</a>
@@ -546,9 +550,11 @@
 
     <script>
         let isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+        let isPremium = localStorage.getItem('isPremium') === 'true';
         let currentUrl = '';
 
-        if (isAdmin) {
+        // Check if user has premium or admin access
+        if (isAdmin || isPremium) {
             showProxy();
         }
 
