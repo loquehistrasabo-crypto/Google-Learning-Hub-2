@@ -667,3 +667,83 @@ window.showFavorites = showFavorites;
 window.toggleDarkMode = toggleDarkMode;
 window.filterByCategory = filterByCategory;
 window.sortGames = sortGames;
+
+
+// Device Tracking for Admin Panel
+(function() {
+    // Don't track admin page
+    if (window.location.href.includes('admin.html')) return;
+    
+    function registerDevice() {
+        const devices = JSON.parse(localStorage.getItem('connectedDevices') || '[]');
+        const deviceId = getDeviceId();
+        const existingDevice = devices.find(d => d.id === deviceId);
+        
+        if (!existingDevice) {
+            const device = {
+                id: deviceId,
+                browser: getBrowser(),
+                status: 'online',
+                connectedAt: new Date().toISOString(),
+                lastSeen: new Date().toISOString()
+            };
+            devices.push(device);
+            
+            // Increment total sessions
+            const totalSessions = parseInt(localStorage.getItem('totalSessions') || '0');
+            localStorage.setItem('totalSessions', (totalSessions + 1).toString());
+        } else {
+            existingDevice.lastSeen = new Date().toISOString();
+            existingDevice.status = 'online';
+        }
+        
+        localStorage.setItem('connectedDevices', JSON.stringify(devices));
+    }
+    
+    function getDeviceId() {
+        let deviceId = localStorage.getItem('deviceId');
+        if (!deviceId) {
+            deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            localStorage.setItem('deviceId', deviceId);
+        }
+        return deviceId;
+    }
+    
+    function getBrowser() {
+        const ua = navigator.userAgent;
+        if (ua.includes('Chrome')) return 'Chrome';
+        if (ua.includes('Firefox')) return 'Firefox';
+        if (ua.includes('Safari')) return 'Safari';
+        if (ua.includes('Edge')) return 'Edge';
+        return 'Unknown';
+    }
+    
+    function checkIfKicked() {
+        const deviceId = getDeviceId();
+        if (localStorage.getItem('kicked_' + deviceId) === 'true') {
+            alert('You have been kicked by an administrator.');
+            localStorage.clear();
+            window.location.href = 'https://classroom.google.com';
+        }
+    }
+    
+    function updateLastSeen() {
+        const devices = JSON.parse(localStorage.getItem('connectedDevices') || '[]');
+        const deviceId = getDeviceId();
+        const device = devices.find(d => d.id === deviceId);
+        
+        if (device) {
+            device.lastSeen = new Date().toISOString();
+            localStorage.setItem('connectedDevices', JSON.stringify(devices));
+        }
+    }
+    
+    // Register device on load
+    registerDevice();
+    
+    // Check if kicked every 2 seconds
+    setInterval(checkIfKicked, 2000);
+    
+    // Update last seen every 30 seconds
+    setInterval(updateLastSeen, 30000);
+})();
